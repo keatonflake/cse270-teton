@@ -173,27 +173,49 @@ class TestSmokeTestSuite():
     self.driver.get("http://127.0.0.1:5500/teton/1.6/index.html")
     self.driver.set_window_size(1440, 900)
     self.driver.find_element(By.LINK_TEXT, "Join").click()
-    element = self.driver.find_element(By.CSS_SELECTOR, ".myinput:nth-child(2)")
+    
+    # Create a wait object
+    wait = WebDriverWait(self.driver, 10)
+    
+    # Wait for element to be clickable and then interact with it
+    input_element = wait.until(expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, ".myinput:nth-child(2)")))
+    
+    # Now perform actions on a freshly fetched element
     actions = ActionChains(self.driver)
-    actions.move_to_element(element).click_and_hold().perform()
-    element = self.driver.find_element(By.CSS_SELECTOR, ".myinput:nth-child(2)")
-    actions = ActionChains(self.driver)
-    actions.move_to_element(element).perform()
-    element = self.driver.find_element(By.CSS_SELECTOR, ".myinput:nth-child(2)")
-    actions = ActionChains(self.driver)
-    actions.move_to_element(element).release().perform()
-    self.driver.find_element(By.CSS_SELECTOR, ".myinput:nth-child(2)").click()
-    self.driver.find_element(By.CSS_SELECTOR, "fieldset").click()
-    self.driver.find_element(By.NAME, "fname").click()
-    self.driver.find_element(By.NAME, "fname").send_keys("test")
-    self.driver.find_element(By.NAME, "submit").click()
-    self.driver.find_element(By.NAME, "lname").send_keys("test")
-    self.driver.find_element(By.NAME, "bizname").click()
-    self.driver.find_element(By.NAME, "bizname").send_keys("test")
-    self.driver.find_element(By.NAME, "biztitle").click()
-    self.driver.find_element(By.NAME, "biztitle").send_keys("test")
-    self.driver.find_element(By.NAME, "submit").click()
-    self.driver.find_element(By.CSS_SELECTOR, "fieldset").click()
+    actions.move_to_element(input_element).click_and_hold().release().perform()
+    
+    # Re-fetch the element before each interaction to avoid stale references
+    wait.until(expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, ".myinput:nth-child(2)"))).click()
+    
+    wait.until(expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, "fieldset"))).click()
+    
+    # Fill out form fields with waits
+    fname_input = wait.until(expected_conditions.element_to_be_clickable((By.NAME, "fname")))
+    fname_input.click()
+    fname_input.send_keys("test")
+    
+    # Find and click the submit button - wait for it to be clickable
+    submit_button = wait.until(expected_conditions.element_to_be_clickable((By.NAME, "submit")))
+    submit_button.click()
+    
+    # Continue with form filling - refresh element references
+    lname_input = wait.until(expected_conditions.element_to_be_clickable((By.NAME, "lname")))
+    lname_input.send_keys("test")
+    
+    bizname_input = wait.until(expected_conditions.element_to_be_clickable((By.NAME, "bizname")))
+    bizname_input.click()
+    bizname_input.send_keys("test")
+    
+    biztitle_input = wait.until(expected_conditions.element_to_be_clickable((By.NAME, "biztitle")))
+    biztitle_input.click()
+    biztitle_input.send_keys("test")
+    
+    # Find and click the submit button again - refresh reference
+    submit_button = wait.until(expected_conditions.element_to_be_clickable((By.NAME, "submit")))
+    submit_button.click()
+    
+    # Final click on fieldset - refresh reference
+    wait.until(expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, "fieldset"))).click()
   
   def test_navagation(self):
     self.driver.get("http://127.0.0.1:5500/teton/1.6/index.html")
